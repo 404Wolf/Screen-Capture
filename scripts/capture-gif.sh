@@ -1,5 +1,5 @@
 # If already running, kill wf_recorder and exit
-if pgrep -x "wf_recorder" > /dev/null
+if pgrep -x "wf-recorder" > /dev/null
 then
     pkill -x wf-recorder
     exit
