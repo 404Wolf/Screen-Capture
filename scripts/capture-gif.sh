@@ -1,3 +1,10 @@
+# If already running, kill wf_recorder and exit
+if pgrep -x "wf_recorder" > /dev/null
+then
+    pkill -x wf_recorder
+    exit
+fi
+
 FILEPATH="/tmp/$(uuidgen)"
 mkdir -p "$FILEPATH/frames/"
 REGION=$(${slurp} -d)
