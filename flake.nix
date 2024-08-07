@@ -6,18 +6,15 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
-  outputs =
-    {
-      self,
-      nixpkgs,
-      flake-utils,
-    }:
+  outputs = {
+    self,
+    nixpkgs,
+    flake-utils,
+  }:
     flake-utils.lib.eachDefaultSystem (
-      system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-      in
-      {
+      system: let
+        pkgs = import nixpkgs {inherit system;};
+      in {
         packages = rec {
           default = pkgs.stdenv.mkDerivation {
             name = "screenshot-utils";
@@ -41,7 +38,7 @@
             grim=${pkgs.grim}/bin/grim;
             wl_copy=${pkgs.wl-clipboard}/bin/wl-copy;
             notify=${pkgs.libnotify}/bin/notify-send;
-            ${builtins.readFile ./scripts/partial-screenshot.sh} 
+            ${builtins.readFile ./scripts/partial-screenshot.sh}
           '';
           # set FPS QUALITY SAVE
           capture-gif = pkgs.writeShellScriptBin "capture-gif.sh" ''
