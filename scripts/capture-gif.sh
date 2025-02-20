@@ -39,14 +39,20 @@ echo $! > "$PID_FILE"
 
 wait "$(cat "$PID_FILE")"
 
-# Convert to GIF
-ffmpeg -i "$OUTPUT_FILE.mkv" \
-    -vf "fps=$FPS,scale=640:-1:flags=lanczos" \
-    -quality "$QUALITY" \
-    "$OUTPUT_FILE"
+# Convert to high quality GIF using a better palette
+palette="/tmp/palette.png"
+filters="fps=$FPS,scale=-1:-1:flags=lanczos"
 
-# Clean up the temporary mkv file
-rm -f "$OUTPUT_FILE.mkv"
+# Generate a high quality palette
+ffmpeg -i "$OUTPUT_FILE.mkv" -vf "$filters,palettegen=max_colors=256:stats_mode=full" -y "$palette"
+
+# Convert to GIF with the custom palette
+ffmpeg -i "$OUTPUT_FILE.mkv" -i "$palette" \
+    -lavfi "$filters [x]; [x][1:v] paletteuse=dither=floyd_steinberg:bayer_scale=5:diff_mode=rectangle" \
+    -y "$OUTPUT_FILE"
+
+# Clean up temporary files
+rm -f "$OUTPUT_FILE.mkv" "$palette"
 
 # Copy to clipboard
 wl-copy --type "text/uri-list" "file://$OUTPUT_FILE"
