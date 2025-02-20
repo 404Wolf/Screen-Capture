@@ -39,7 +39,7 @@ wait "$(cat "$PID_FILE")"
 
 # Convert to high quality GIF using a better palette
 palette="/tmp/palette.png"
-filters="fps=$FPS,scale=-1:-1:flags=lanczos"
+filters="scale=-1:-1:flags=lanczos"
 
 # Generate a high quality palette
 ffmpeg -i "$OUTPUT_FILE.mkv" -vf "$filters,palettegen=max_colors=256:stats_mode=full" -y "$palette"
