@@ -1,6 +1,6 @@
 # Configuration with defaults
-FPS="${FPS:-15}"
-QUALITY="${QUALITY:-80}"
+FPS="${FPS:-20}"
+QUALITY="${QUALITY:-90}"
 SAVE="${SAVE:-0}"
 
 LOCK_FILE="/tmp/screen_recorder.lock"
@@ -39,7 +39,7 @@ wait "$(cat "$PID_FILE")"
 
 # Convert to high quality GIF using a better palette
 palette="/tmp/palette.png"
-filters="scale=-1:-1:flags=lanczos"
+filters="fps=$FPS"
 
 # Generate a high quality palette
 ffmpeg -i "$OUTPUT_FILE.mkv" -vf "$filters,palettegen=max_colors=256:stats_mode=full" -y "$palette"
