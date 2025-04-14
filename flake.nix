@@ -33,12 +33,8 @@
 
       # Define all scripts
       scripts = {
-        dump-clipboard = mkScript {
-          name = "dump-clipboard";
-        };
-
-        partial-screenshot = mkScript {
-          name = "partial-screenshot";
+        capture-screenshot = mkScript {
+          name = "capture-screenshot";
           runtimeInputs = with pkgs; [
             slurp
             grim
@@ -50,6 +46,15 @@
           runtimeInputs = with pkgs; [
             ffmpeg
             gifski
+            gifsicle
+            slurp
+            wf-recorder
+          ];
+        };
+
+        capture-video = mkScript {
+          name = "capture-video";
+          runtimeInputs = with pkgs; [
             slurp
             wf-recorder
           ];
@@ -71,6 +76,7 @@
           ++ (with pkgs; [
             ffmpeg
             gifski
+            gifsicle
             slurp
             grim
             wf-recorder
