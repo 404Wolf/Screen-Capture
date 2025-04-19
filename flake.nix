@@ -33,8 +33,8 @@
 
       # Define all scripts
       scripts = {
-        capture-screenshot = mkScript {
-          name = "capture-screenshot";
+        capture-image = mkScript {
+          name = "capture-image";
           runtimeInputs = with pkgs; [
             slurp
             grim
@@ -65,7 +65,7 @@
         scripts
         // {
           default = pkgs.symlinkJoin {
-            name = "screenshot-utils";
+            name = "capture-utils";
             paths = builtins.attrValues scripts;
           };
         };
