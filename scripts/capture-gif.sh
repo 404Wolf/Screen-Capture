@@ -1,7 +1,6 @@
 # Configuration with defaults
 FPS="${FPS:-15}"
 QUALITY="${QUALITY:-90}"
-SAVE="${SAVE:-0}"
 MAX_WIDTH="${MAX_WIDTH:-800}"
 MAX_SIZE="${MAX_SIZE:-8}" # Max size in MB for Discord (8MB limit)
 
@@ -9,11 +8,8 @@ LOCK_FILE="/tmp/screen_recorder.lock"
 PID_FILE="/tmp/screen_recorder.pid"
 OUTPUT_FILE="/tmp/recording.gif"
 
-# If saving is enabled, create a unique filename in ~/Screenshots
-if [ "$SAVE" = "1" ]; then
-    mkdir -p ~/Screenshots
-    OUTPUT_FILE=~/Screenshots/recording_$(date +%Y%m%d_%H%M%S).gif
-fi
+mkdir -p ~/Screenshots
+OUTPUT_FILE=~/Screenshots/recording_$(date +%Y%m%d_%H%M%S).gif
 
 cleanup() {
     rm -f "$LOCK_FILE" "$PID_FILE"
@@ -47,16 +43,9 @@ echo $RECORDER_PID > "$PID_FILE"
 
 wait $RECORDER_PID || true
 
-# Check if the recording file exists and has content
-if [ ! -s "$OUTPUT_FILE.mkv" ]; then
-    notify-send "Screen Recording" "Recording failed or was empty."
-    cleanup
-    exit 1
-fi
-
 notify-send "Screen Recording" "Processing GIF..."
 
-# Convert to optimized GIF for Discord
+# Convert to optimized GIF
 palette="/tmp/palette.png"
 # Scale down if necessary (for faster loading) and use lower FPS
 filters="fps=$FPS,scale=min(iw\,$MAX_WIDTH):min(ih\,trunc(oh*a/2)*2)"
@@ -71,15 +60,6 @@ ffmpeg -i "$OUTPUT_FILE.mkv" -i "$palette" \
 
 # Clean up temporary files
 rm -f "$OUTPUT_FILE.mkv" "$palette"
-
-# Optimize the GIF further if it's too large
-FILESIZE=$(du -m "$OUTPUT_FILE" | cut -f1)
-if [ "$FILESIZE" -gt "$MAX_SIZE" ]; then
-    notify-send "Screen Recording" "Optimizing GIF for Discord..."
-    TEMP_FILE="/tmp/optimized.gif"
-    gifsicle --optimize=3 --colors 128 "$OUTPUT_FILE" -o "$TEMP_FILE"
-    mv "$TEMP_FILE" "$OUTPUT_FILE"
-fi
 
 # Copy to clipboard
 wl-copy --type "text/uri-list" "file://$OUTPUT_FILE"
