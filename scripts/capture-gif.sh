@@ -36,14 +36,11 @@ fi
 touch "$LOCK_FILE"
 REGION=$(slurp -d) || { rm -f "$LOCK_FILE"; exit 1; }
 
-notify-send "Screen Recording" "Recording started..."
 wf-recorder --no-damage -g "$REGION" -f "$OUTPUT_FILE.mkv" &
 RECORDER_PID=$!
 echo $RECORDER_PID > "$PID_FILE"
 
 wait $RECORDER_PID || true
-
-notify-send "Screen Recording" "Processing GIF..."
 
 # Convert to optimized GIF
 palette="/tmp/palette.png"
@@ -63,4 +60,3 @@ rm -f "$OUTPUT_FILE.mkv" "$palette"
 
 # Copy to clipboard
 wl-copy --type "text/uri-list" "file://$OUTPUT_FILE"
-notify-send "Screen Recording" "GIF saved to: $OUTPUT_FILE"

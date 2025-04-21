@@ -1,5 +1,3 @@
-#!/bin/bash
-
 # Configuration with defaults
 SAVE="${SAVE:-0}"
 AUDIO="${AUDIO:-0}"
@@ -36,7 +34,6 @@ if [ -f "$LOCK_FILE" ]; then
     
     # Check if the recording exists
     if [ -f "$OUTPUT_FILE" ]; then
-        notify-send "Screen Recording" "Video saved to: $OUTPUT_FILE"
         # Copy to clipboard
         wl-copy --type "text/uri-list" "file://$OUTPUT_FILE"
     fi
@@ -47,8 +44,6 @@ fi
 # Start new recording
 touch "$LOCK_FILE"
 REGION=$(slurp -d) || { rm -f "$LOCK_FILE"; exit 1; }
-
-notify-send "Screen Recording" "Video recording started... Run script again to stop."
 
 # Recording command with or without audio
 if [ "$AUDIO" = "1" ]; then

@@ -17,7 +17,6 @@
       # Common runtime dependencies for the scripts
       commonDeps = with pkgs; [
         wl-clipboard
-        libnotify
       ];
 
       # Helper function to create script packages
