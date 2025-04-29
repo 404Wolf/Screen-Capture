@@ -1,6 +1,6 @@
 set -euxo pipefail
 
-FILEPATH=/tmp/$(uuidgen)
+OUTPUT_FILE=/tmp/$(uuidgen)
 
 # Exit if region selection is cancelled
 REGION=$(slurp) || exit 1
@@ -11,7 +11,8 @@ if [ -n "${SCREENSHOT_DELAY:-}" ]; then
 fi
 
 # Take the screenshot
-grim -g "$REGION" "$FILEPATH.png" || {
+grim -g "$REGION" "$OUTPUT_FILE.png" || {
     exit 1
 }
 
+wl-copy --type "text/uri-list" "file://$OUTPUT_FILE"
