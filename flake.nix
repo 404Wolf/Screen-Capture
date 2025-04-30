@@ -19,44 +19,51 @@
         wl-clipboard
       ];
 
-      # Helper function to create script packages
-      mkScript = {
-        name,
-        runtimeInputs ? [],
-      }:
-        pkgs.writeShellApplication {
-          inherit name;
-          runtimeInputs = commonDeps ++ runtimeInputs;
-          text = builtins.readFile ./scripts/${name}.sh;
-        };
-
       # Define all scripts
       scripts = {
-        capture-image = mkScript {
+        capture-image = pkgs.writeShellApplication {
           name = "capture-image";
-          runtimeInputs = with pkgs; [
-            slurp
-            grim
-          ];
+          runtimeInputs =
+            commonDeps
+            ++ (with pkgs; [
+              slurp
+              grim
+              python3
+            ]);
+          text = ''
+            exec ${pkgs.python3}/bin/python3 ${./scripts/capture-image.py}
+          '';
         };
 
-        capture-gif = mkScript {
+        capture-gif = pkgs.writeShellApplication {
           name = "capture-gif";
-          runtimeInputs = with pkgs; [
-            ffmpeg
-            gifski
-            gifsicle
-            slurp
-            wf-recorder
-          ];
+          runtimeInputs =
+            commonDeps
+            ++ (with pkgs; [
+              ffmpeg
+              gifski
+              gifsicle
+              slurp
+              wf-recorder
+              python3
+            ]);
+          text = ''
+            exec ${pkgs.python3}/bin/python3 ${./scripts/capture-gif.py}
+          '';
         };
 
-        capture-video = mkScript {
+        capture-video = pkgs.writeShellApplication {
           name = "capture-video";
-          runtimeInputs = with pkgs; [
-            slurp
-            wf-recorder
-          ];
+          runtimeInputs =
+            commonDeps
+            ++ (with pkgs; [
+              slurp
+              wf-recorder
+              python3
+            ]);
+          text = ''
+            exec ${pkgs.python3}/bin/python3 ${./scripts/capture-video.py}
+          '';
         };
       };
     in {
@@ -79,6 +86,8 @@
             slurp
             grim
             wf-recorder
+            python3
+            pyright
           ]);
       };
     });
