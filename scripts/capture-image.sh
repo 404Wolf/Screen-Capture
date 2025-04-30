@@ -15,4 +15,4 @@ grim -g "$REGION" "$OUTPUT_FILE.png" || {
     exit 1
 }
 
-wl-copy --type "text/uri-list" "file://$OUTPUT_FILE"
+wl-copy --type "text/uri-list" "file://$OUTPUT_FILE.png"
