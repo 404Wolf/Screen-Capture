@@ -15,11 +15,19 @@ trap cleanup EXIT INT TERM
 
 # If lock exists, stop recording
 if [ -f "$LOCK_FILE" ]; then
-    if [ -f "$PID_FILE" ]; then
-        kill "$(cat "$PID_FILE")" 2>/dev/null || true
-        pkill -P "$(cat "$PID_FILE")" 2>/dev/null || true
+    if [ -f "$PID_FILE" ] && [ -s "$PID_FILE" ]; then
+        RECORDER_PID=$(cat "$PID_FILE")
+        if kill -TERM "$RECORDER_PID" 2>/dev/null; then
+            # Give the recorder time to gracefully shut down
+            sleep 1
+            # Only forcefully kill if still running
+            kill -0 "$RECORDER_PID" 2>/dev/null && kill -KILL "$RECORDER_PID" 2>/dev/null
+        fi
+        # Wait a moment for processes to clean up
+        sleep 0.5
     fi
     rm -f "$LOCK_FILE" "$PID_FILE"
+    notify-send "Recording stopped" "Converting to GIF..."
     exit 0
 fi
 
@@ -32,6 +40,8 @@ wf-recorder --no-damage -g "$REGION" -f "$TEMP_FILE" &
 RECORDER_PID=$!
 echo $RECORDER_PID > "$PID_FILE"
 
+notify-send "Recording started" "Run script again to stop"
+
 wait $RECORDER_PID || true
 
 # Convert to optimized GIF
@@ -43,3 +53,4 @@ rm -f "$TEMP_FILE"
 
 # Copy to clipboard
 wl-copy --type "text/uri-list" "file://$OUTPUT_FILE"
+notify-send "Recording saved" "$OUTPUT_FILE"
