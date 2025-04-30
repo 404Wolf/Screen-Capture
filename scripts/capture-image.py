@@ -22,6 +22,12 @@ try:
     # Copy to clipboard
     subprocess.run(["wl-copy", "--type", "text/uri-list", f"file://{output_file}.png"], check=True)
     
+    # Send notification
+    subprocess.run(["notify-send", "Screenshot captured", "Image copied to clipboard"])
+    
 except subprocess.CalledProcessError:
     # Exit if region selection is cancelled or screenshot fails
+    sys.exit(1)
+except Exception as e:
+    subprocess.run(["notify-send", "Error", str(e)])
     sys.exit(1)

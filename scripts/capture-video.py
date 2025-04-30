@@ -60,6 +60,7 @@ if os.path.exists(LOCK_FILE):
         # Copy to clipboard
         subprocess.run(["wl-copy", "--type", "text/uri-list", f"file://{OUTPUT_FILE}"])
     
+    subprocess.run(["notify-send", "Recording stopped", "Video copied to clipboard"])
     sys.exit(0)
 
 # Start new recording
@@ -83,6 +84,8 @@ try:
     with open(PID_FILE, 'w') as f:
         f.write(str(process.pid))
     
+    subprocess.run(["notify-send", "Recording started", "Run script again to stop"])
+    
     # Wait for process to complete (when user runs script again)
     process.wait()
     
@@ -96,4 +99,5 @@ except KeyboardInterrupt:
     sys.exit(0)
 except Exception as e:
     cleanup()
+    subprocess.run(["notify-send", "Error", str(e)])
     sys.exit(1)
