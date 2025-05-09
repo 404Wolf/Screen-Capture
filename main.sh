@@ -41,19 +41,26 @@ if [ -n "$RUNNING_PID" ]; then
     if [ "$LAST_OUTPUT_TYPE" = "gif" ] && [ -n "$LAST_OUTPUT_FILE" ] && [ -f "$LAST_OUTPUT_FILE" ]; then
         GIF_FILE="${LAST_OUTPUT_FILE%.mp4}.gif"
 
-        # Convert using ffmpeg
-        ffmpeg -i "$LAST_OUTPUT_FILE" -vf "fps=15,scale=800:-1:flags=lanczos" -c:v gif "$GIF_FILE"
+        # Run conversion in the background to prevent freezing
+        (
+            # Convert using ffmpeg
+            ffmpeg -i "$LAST_OUTPUT_FILE" -vf "fps=15,scale=800:-1:flags=lanczos" -c:v gif "$GIF_FILE"
 
-        # Remove the temporary mp4 file
-        rm -f "$LAST_OUTPUT_FILE"
+            # Remove the temporary mp4 file
+            rm -f "$LAST_OUTPUT_FILE"
 
-        # Update the output file
-        LAST_OUTPUT_FILE="$GIF_FILE"
-        wl-copy --type text/uri-list "file://$LAST_OUTPUT_FILE"
-    fi
+            # Copy the GIF file to clipboard when done
+            wl-copy --type text/uri-list "file://$GIF_FILE"
 
-    if [ -n "$LAST_OUTPUT_FILE" ] && [ -f "$LAST_OUTPUT_FILE" ]; then
-        notify-send "Recording stopped" "File copied to clipboard"
+            # Notify when conversion is complete
+            notify-send "GIF Conversion Complete" "GIF saved to $GIF_FILE and copied to clipboard"
+        ) &
+
+        notify-send "Recording stopped" "Converting to GIF in background..."
+    else
+        if [ -n "$LAST_OUTPUT_FILE" ] && [ -f "$LAST_OUTPUT_FILE" ]; then
+            notify-send "Recording stopped" "File copied to clipboard"
+        fi
     fi
 
     # Clean up
