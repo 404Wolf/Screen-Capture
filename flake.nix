@@ -1,5 +1,5 @@
 {
-  description = "Collection of screen capturing utilities for Wayland";
+  description = "Unified screen capturing utility for Wayland";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -13,82 +13,30 @@
   }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {inherit system;};
-
-      # Common runtime dependencies for the scripts
-      commonDeps = with pkgs; [
+      deps = with pkgs; [
         wl-clipboard
+        slurp
+        ffmpeg
+        gifski
+        gifsicle
+        slurp
+        wf-recorder
+        grim
+        wf-recorder
       ];
-
-      # Define all scripts
-      scripts = {
-        capture-image = pkgs.writeShellApplication {
-          name = "capture-image";
-          runtimeInputs =
-            commonDeps
-            ++ (with pkgs; [
-              slurp
-              grim
-              python3
-            ]);
-          text = ''
-            exec ${pkgs.python3}/bin/python3 ${./scripts/capture-image.py}
-          '';
-        };
-
-        capture-gif = pkgs.writeShellApplication {
-          name = "capture-gif";
-          runtimeInputs =
-            commonDeps
-            ++ (with pkgs; [
-              ffmpeg
-              gifski
-              gifsicle
-              slurp
-              wf-recorder
-              python3
-            ]);
-          text = ''
-            exec ${pkgs.python3}/bin/python3 ${./scripts/capture-gif.py}
-          '';
-        };
-
-        capture-video = pkgs.writeShellApplication {
-          name = "capture-video";
-          runtimeInputs =
-            commonDeps
-            ++ (with pkgs; [
-              slurp
-              wf-recorder
-              python3
-            ]);
-          text = ''
-            exec ${pkgs.python3}/bin/python3 ${./scripts/capture-video.py}
-          '';
+    in {
+      packages = rec {
+        default = screenCapture;
+        screenCapture = pkgs.writeShellApplication {
+          name = "screen-capture";
+          text = "${builtins.readFile ./main.sh}";
+          bashOptions = []; # set in the script
+          runtimeInputs = deps;
         };
       };
-    in {
-      packages =
-        scripts
-        // {
-          default = pkgs.symlinkJoin {
-            name = "capture-utils";
-            paths = builtins.attrValues scripts;
-          };
-        };
 
       devShells.default = pkgs.mkShell {
-        packages =
-          commonDeps
-          ++ (with pkgs; [
-            ffmpeg
-            gifski
-            gifsicle
-            slurp
-            grim
-            wf-recorder
-            python3
-            pyright
-          ]);
+        packages = deps;
       };
     });
 }
