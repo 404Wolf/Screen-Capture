@@ -43,8 +43,8 @@ if [ -n "$RUNNING_PID" ]; then
 
         # Run conversion in the background to prevent freezing
         (
-            # Convert using ffmpeg
-            ffmpeg -i "$LAST_OUTPUT_FILE" -vf "fps=15,scale=800:-1:flags=lanczos" -c:v gif "$GIF_FILE"
+            # Convert using gifski for higher quality
+            gifski --fps 15 --width 800 --quality 90 --output "$GIF_FILE" "$LAST_OUTPUT_FILE"
 
             # Remove the temporary mp4 file
             rm -f "$LAST_OUTPUT_FILE"
@@ -123,4 +123,3 @@ case "$1" in
         notify-send "Recording started" "Run script again to stop"
         ;;
 esac
-
